@@ -1,0 +1,7 @@
+# Initialize a new Git repo
+git init
+
+# Create the ignore file
+echo "New folder/classifier.xml" > .gitignore
+echo "venv/" >> .gitignore
+echo "__pycache__/" >> .gitignore

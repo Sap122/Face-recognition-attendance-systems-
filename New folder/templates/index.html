@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title> Dropdowns</title>
+</head>
+
+<body>
+
+    <h2>Employee Form</h2>
+
+    <!-- Department -->
+    <label>Department</label><br>
+    <select id="deptSelect" onchange="loadDesignations()">
+        <option value=""> Select Department </option>
+        {% for d in departments %}
+        <option value="{{ d.deptId }}">{{ d.departmentName }}</option>
+        {% endfor %}
+    </select>
+
+    <br><br>
+
+    <!-- Designation -->
+    <label>Role</label><br>
+    <select id="desigSelect" onchange="loadEmployees()">
+        <option value="">Select Role </option>
+    </select>
+
+    <br><br>
+
+    <!-- Employee -->
+    <label>Employee</label><br>
+    <select id="empSelect">
+        <option value="">Select Employee </option>
+    </select>
+
+    <script>
+        function loadDesignations() {
+            const deptId = document.getElementById("deptSelect").value;
+
+            fetch(`/designations/${deptId}`)
+                .then(res => res.json())
+                .then(data => {
+                    const desig = document.getElementById("desigSelect");
+                    desig.innerHTML = '<option value="">-- Select Designation --</option>';
+                    data.forEach(d => {
+                        desig.innerHTML += `<option value="${d.desigId}">${d.designationName}</option>`;
+                    });
+                });
+        }
+
+        function loadEmployees() {
+            const deptId = document.getElementById("deptSelect").value;
+
+            fetch(`/employees/${deptId}`)
+                .then(res => res.json())
+                .then(data => {
+                    const emp = document.getElementById("empSelect");
+                    emp.innerHTML = '<option value="">-- Select Employee --</option>';
+                    data.forEach(e => {
+                        emp.innerHTML += `<option value="${e.employmentId}">${e.empName}</option>`;
+                    });
+                });
+        }
+    </script>
+
+</body>
+
+</html>
