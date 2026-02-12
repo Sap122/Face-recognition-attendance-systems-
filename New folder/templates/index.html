@@ -2,17 +2,16 @@
 <html>
 
 <head>
-    <title> Dropdowns</title>
+    <title>Face Recognition System</title>
 </head>
 
 <body>
 
-    <h2>Employee Form</h2>
+    <h2>Face Recognition System</h2>
 
     <!-- Department -->
-    <label>Department</label><br>
-    <select id="deptSelect" onchange="loadDesignations()">
-        <option value=""> Select Department </option>
+    <select id="deptDropdown">
+        <option value="">Select Department</option>
         {% for d in departments %}
         <option value="{{ d.deptId }}">{{ d.departmentName }}</option>
         {% endfor %}
@@ -20,48 +19,99 @@
 
     <br><br>
 
-    <!-- Designation -->
-    <label>Role</label><br>
-    <select id="desigSelect" onchange="loadEmployees()">
-        <option value="">Select Role </option>
+    <!-- Role -->
+    <select id="roleDropdown">
+        <option value="">Select Role</option>
     </select>
 
     <br><br>
 
     <!-- Employee -->
-    <label>Employee</label><br>
-    <select id="empSelect">
-        <option value="">Select Employee </option>
+    <select id="empDropdown">
+        <option value="">Select Employee</option>
     </select>
 
+    <br><br>
+
+    <form action="/register" method="post">
+        <input type="hidden" name="empId" id="empIdInput">
+        <input type="hidden" name="empName" id="empNameInput">
+
+        <button type="submit" id="registerBtn" disabled>Register Face</button>
+    </form>
+
+    <br><br>
+
+    <form action="/attendance" method="post">
+        <button type="submit">Mark Attendance</button>
+    </form>
+
     <script>
-        function loadDesignations() {
-            const deptId = document.getElementById("deptSelect").value;
+
+        const deptDropdown = document.getElementById("deptDropdown");
+        const roleDropdown = document.getElementById("roleDropdown");
+        const empDropdown = document.getElementById("empDropdown");
+        const registerBtn = document.getElementById("registerBtn");
+
+
+        // Department change
+        deptDropdown.addEventListener("change", function () {
+
+            const deptId = this.value;
+
+            roleDropdown.innerHTML = '<option value="">Select Role</option>';
+            empDropdown.innerHTML = '<option value="">Select Employee</option>';
+            registerBtn.disabled = true;
+
+            if (!deptId) return;
 
             fetch(`/designations/${deptId}`)
                 .then(res => res.json())
                 .then(data => {
-                    const desig = document.getElementById("desigSelect");
-                    desig.innerHTML = '<option value="">-- Select Designation --</option>';
-                    data.forEach(d => {
-                        desig.innerHTML += `<option value="${d.desigId}">${d.designationName}</option>`;
+                    data.forEach(role => {
+                        roleDropdown.innerHTML +=
+                            `<option value="${role.desigId}">${role.designationName}</option>`;
                     });
                 });
-        }
+        });
 
-        function loadEmployees() {
-            const deptId = document.getElementById("deptSelect").value;
 
-            fetch(`/employees/${deptId}`)
+        // Role change
+        roleDropdown.addEventListener("change", function () {
+
+            const deptId = deptDropdown.value;
+            const desigId = roleDropdown.value;
+
+            empDropdown.innerHTML = '<option value="">Select Employee</option>';
+            registerBtn.disabled = true;
+
+            if (!deptId || !desigId) return;
+
+            fetch(`/employees/${deptId}/${desigId}`)
                 .then(res => res.json())
                 .then(data => {
-                    const emp = document.getElementById("empSelect");
-                    emp.innerHTML = '<option value="">-- Select Employee --</option>';
-                    data.forEach(e => {
-                        emp.innerHTML += `<option value="${e.employmentId}">${e.empName}</option>`;
+                    data.forEach(emp => {
+                        empDropdown.innerHTML +=
+                            `<option value="${emp.employmentId}">${emp.empName}</option>`;
                     });
                 });
-        }
+        });
+
+
+        // Employee selected
+        empDropdown.addEventListener("change", function () {
+
+            const selectedOption = this.options[this.selectedIndex];
+
+            if (selectedOption.value !== "") {
+                registerBtn.disabled = false;
+                document.getElementById("empIdInput").value = selectedOption.value;
+                document.getElementById("empNameInput").value = selectedOption.text;
+            } else {
+                registerBtn.disabled = true;
+            }
+        });
+
     </script>
 
 </body>
